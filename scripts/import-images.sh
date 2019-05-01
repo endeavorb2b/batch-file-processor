@@ -34,8 +34,8 @@ localfilename="$convertedName.$oldExtension"
 
 if [ $(aws s3 ls "s3://media.cygnus.com/$mediaPath/original/$localfilename" | wc -l) -ge 1 ]; then
   echo -e "$G Already processed $localfilename, skipping! $N"
-  echo "Already downloaded, skipping:  $localfilename" #>> logs/skip
-    exit 0;
+  echo "Already downloaded, skipping:  $localfilename" >> "logs/skip/$FILE"
+  exit 0;
 fi
 
 
@@ -44,7 +44,7 @@ wget -O $localfilename "$sourcePath" --timeout=5
 
 if [ -s "$localfilename" ]; then
   echo -e "$G Successfully downloaded $localfilename. $N"
-  echo "Successfully downloaded $sourcePath -- $localfilename" >> logs/success
+  echo "Successfully downloaded $sourcePath -- $localfilename" >> "logs/success/$FILE"
 
   # Move the image to the original folder
   remotePath="s3://media.cygnus.com/$mediaPath/original/$convertedName.$oldExtension"
@@ -66,7 +66,7 @@ if [ -s "$localfilename" ]; then
   rm -f $newPath
 else
   echo -e "$R Unable to download $localfilename! $N"
-  echo $image >> logs/error
+  echo $image >> "logs/error/$FILE"
 fi
 
 #cleanup

@@ -5,7 +5,7 @@ export R='\033[0;31m'
 export N='\033[0m'
 
 # Total number of lines in file
-filelines=$(wc -l < /data/$FILE)
+filelines=$(wc -l < /data/files/$FILE)
 # Number of chunks in the array
 split=$SPLIT
 # Loop counter
@@ -24,7 +24,7 @@ while [  $counter -lt $loopSize ]; do
   sedEnd="${end}p"
   
   # Chunk into array
-  chunkList="$(sed -n $start,$sedEnd < /data/$FILE)"
+  chunkList="$(sed -n $start,$sedEnd < /data/files/$FILE)"
 
   # Run in Parallel
   parallel /data/scripts/$SCRIPT {} ::: ${chunkList[@]}
