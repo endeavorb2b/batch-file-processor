@@ -32,25 +32,14 @@ convertedName=$(IFS=. ; echo "${newArr[*]}")
 
 localfilename="$convertedName.$oldExtension"
 
-if [ $(aws s3 ls "s3://media.cygnus.com/$mediaPath/original/$localfilename" | wc -l) -ge 1 ]; then
-  echo -e "$G Already processed $localfilename, skipping! $N"
-  echo "Already downloaded, skipping:  $localfilename" >> "logs/skip/$FILE"
-  exit 0;
-fi
-
-
+remotePath="s3://media.cygnus.com/$mediaPath/original/$convertedName.$oldExtension"
+localfilename="$convertedName.$oldExtension"
 # Download the image
-wget -O $localfilename "$sourcePath" --timeout=5
+aws s3 cp $remotePath $localfilename
 
 if [ -s "$localfilename" ]; then
   echo -e "$G Successfully downloaded $localfilename. $N"
   echo "Successfully downloaded $sourcePath -- $localfilename" >> "logs/success/$FILE"
-
-  # Move the image to the original folder
-  remotePath="s3://media.cygnus.com/$mediaPath/original/$convertedName.$oldExtension"
-  echo "Uploading original:"
-  # echo "> aws s3 cp $localfilename $remotePath"
-  aws s3 cp $localfilename $remotePath
 
   # Convert the original
   newPath="$(pwd)/converted/$convertedName.$newExtension"
