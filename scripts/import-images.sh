@@ -33,21 +33,18 @@ convertedName=$(IFS=. ; echo "${newArr[*]}")
 localfilename="$convertedName.$oldExtension"
 
 if [ $(aws s3 ls "s3://media.cygnus.com/$mediaPath/original/$localfilename" | wc -l) -ge 1 ]; then
-#echo "s3://media.cygnus.com/$mediaPath/original/$localfilename found"
-echo "Already processed $localfilename, skipping!"
-echo "Already downloaded, skipping:  $localfilename" >> skip
+  echo -e "$G Already processed $localfilename, skipping! $N"
+  echo "Already downloaded, skipping:  $localfilename" #>> logs/skip
     exit 0;
 fi
 
 
 # Download the image
-#wget -O $localfilename -q "$sourcePath"
-#wget -O $localfilename "$sourcePath" --domains=industrial-lasers.com,www.industrial-lasers.com --timeout=5
 wget -O $localfilename "$sourcePath" --timeout=5
 
 if [ -s "$localfilename" ]; then
-  echo "Successfully downloaded $localfilename."
-  echo "Successfully downloaded $sourcePath -- $localfilename" >> success
+  echo -e "$G Successfully downloaded $localfilename. $N"
+  echo "Successfully downloaded $sourcePath -- $localfilename" >> logs/success
 
   # Move the image to the original folder
   remotePath="s3://media.cygnus.com/$mediaPath/original/$convertedName.$oldExtension"
@@ -60,7 +57,6 @@ if [ -s "$localfilename" ]; then
   echo "Converting to PNG and resampling to 1920w:"
   # echo "> convert $localfilename -gravity center  -thumbnail 1920 PNG32:$newPath"
   /usr/local/bin/convert $localfilename -gravity center  -resize "1920x>" PNG32:$newPath
-  rm -f $localfilename
 
   # Upload the converted
   remotePath="s3://media.cygnus.com/$mediaPath/$convertedName.$newExtension"
@@ -69,8 +65,9 @@ if [ -s "$localfilename" ]; then
   aws s3 cp $newPath $remotePath
   rm -f $newPath
 else
-  echo "Unable to download $localfilename!"
-  echo $image >> error
-
-rm $localfilename
+  echo -e "$R Unable to download $localfilename! $N"
+  echo $image >> logs/error
 fi
+
+#cleanup
+rm -f $localfilename
