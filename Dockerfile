@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   gnupg2 \
   libcap2-bin \
   wget \
+  curl \
   htop \
   zip \
   awscli \

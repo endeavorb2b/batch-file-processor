@@ -35,26 +35,24 @@ localfilename="$convertedName.$oldExtension"
 remotePath="s3://media.cygnus.com/$mediaPath/original/$convertedName.$oldExtension"
 localfilename="$convertedName.$oldExtension"
 # Download the image
-aws s3 cp $remotePath $localfilename
+aws s3 cp --quiet $remotePath $localfilename
 
 if [ -s "$localfilename" ]; then
-  echo -e "$G Successfully downloaded $localfilename. $N"
+  echo -e "$G Successfully downloaded $N$localfilename"
   echo "Successfully downloaded $sourcePath -- $localfilename" >> "logs/success/$FILE"
 
   # Convert the original
   newPath="$(pwd)/converted/$convertedName.$newExtension"
-  echo "Converting to PNG and resampling to 1920w:"
   # echo "> convert $localfilename -gravity center  -thumbnail 1920 PNG32:$newPath"
   /usr/bin/convert $localfilename -gravity center  -resize "1920x>" PNG32:$newPath
 
   # Upload the converted
   remotePath="s3://media.cygnus.com/$mediaPath/$convertedName.$newExtension"
-  echo "Storing converted image:"
   # echo "> aws s3 cp $newPath $remotePath"
-  aws s3 cp $newPath $remotePath
+  aws s3 cp --quiet $newPath $remotePath
   rm -f $newPath
 else
-  echo -e "$R Unable to download $localfilename! $N"
+  echo -e "$R Unable to download $N $localfilename"
   echo $image >> "logs/error/$FILE"
 fi
 
