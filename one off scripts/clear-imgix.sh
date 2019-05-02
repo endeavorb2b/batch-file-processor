@@ -3,6 +3,7 @@ export Y='\033[0;33m'
 export G='\033[0;32m'
 export R='\033[0;31m'
 export N='\033[0m'
+domain="waterworld.com"
 
 # Total number of lines in file
 filelines=$(wc -l < /data/$1)
@@ -34,7 +35,7 @@ while [  $counter -lt $loopSize ]; do
     originalMediaPath=$(awk -F "|" '{print $2}' <<< $line)
     originalNewFilename=$(awk -F "|" '{print $3}' <<< $line)
     #formate json
-    data+="\"url\":\"https://img.waterworld.com/$originalMediaPath/$originalNewFilename\","
+    data+="\"url\":\"https://img.$domain/$originalMediaPath/$originalNewFilename\","
   
   done
   
@@ -42,7 +43,7 @@ while [  $counter -lt $loopSize ]; do
   data="{$(echo $data | sed '$ s/,$//g')}"
   
   curl 'https://api.imgix.com/v2/image/purger' \
-    -u "IMGIX_API:" \
+    -u "$IMGIX_API:" \
     -H 'Content-Type: application/json' \
     -d "$data"
   
